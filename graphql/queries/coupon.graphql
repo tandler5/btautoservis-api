@@ -1,0 +1,42 @@
+extend type Query {
+  # Query of customer notification tokens
+  coupons: [Coupon!]! @all @guard @where(key: "status", value: "active")
+}
+
+type Coupon {
+  "Id of the coupon"
+  id: ID!
+
+  "Code of the coupon"
+  code: String!
+
+  "Name of the coupon"
+  name: String
+
+  "Description of the coupon"
+  description: String
+
+  "Image of the coupon"
+  image: String
+
+  "Rules of the coupon (JSON)"
+  rules: String
+
+  "Type of the coupon fixed / percent"
+  discount_type: String
+
+  "Value of the coupon"
+  discount_value: Int
+
+  "Status of the coupon"
+  status: String!
+
+  "Timestamp when the coupon was created."
+  created_at: DateTime!
+
+  "Timestamp when the coupon was last updated."
+  updated_at: DateTime!
+
+  "Timestamp when the coupon was deleted."
+  deleted_at: DateTime
+}

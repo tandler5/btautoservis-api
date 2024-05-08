@@ -1,0 +1,25 @@
+extend type Query {
+  # Query pro kategorie
+  models(brandId: ID @where(key: "brand", operator: "=")): [CarModel!]! @all
+  model(id: ID! @eq): CarModel @find
+}
+
+type CarModel {
+  "Unique identifier."
+  id: ID!
+
+  "Brand of the model."
+  brand: CarBrand! @belongsTo
+
+  "Name of the model."
+  name: String!
+
+  "Slug of the model."
+  slug: String!
+
+  "Timestamp when the brand was created."
+  created_at: DateTime!
+
+  "Timestamp when the brand was last updated."
+  updated_at: DateTime!
+}

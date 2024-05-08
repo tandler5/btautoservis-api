@@ -1,0 +1,44 @@
+extend type Mutation {
+  createCar(input: CarCreateInput! @spread): Car! @guard
+  updateCar(carId: ID!, data: CarUpdateInput! @spread): Car! @guard
+  deleteCar(carId: ID!): Car! @guard
+}
+input CarCreateInput {
+  model: ID! @belongsTo(name: "CarModel") @rules(apply: ["exists:wp_latepoint_cars_models,id"])
+
+  year: Int! @rules(apply: ["digits:4"])
+
+  spz: String! @rules(apply: ["min:5", "max:8"])
+
+  vin: String! @rules(apply: ["min:17", "max:17", "unique:wp_latepoint_cars,vin"])
+}
+
+input CarUpdateInput {
+  year: Int! @rules(apply: ["digits:4"])
+
+  spz: String! @rules(apply: ["min:5", "max:8"])
+
+  color: String
+
+  doors: Int @rules(apply: ["digits:1", "nullable"])
+
+  seats: Int @rules(apply: ["digits:1", "nullable"])
+
+  performance: Int @rules(apply: ["max:4", "nullable"])
+
+  axle: Int
+    @belongsTo(name: "CarAxle")
+    @rules(apply: ["exists:wp_latepoint_cars_axles,id", "nullable"])
+
+  gear: Int
+    @belongsTo(name: "CarGear")
+    @rules(apply: ["exists:wp_latepoint_cars_gears,id", "nullable"])
+
+  body: Int
+    @belongsTo(name: "CarBody")
+    @rules(apply: ["exists:wp_latepoint_cars_bodies,id", "nullable"])
+
+  fuel: Int
+    @belongsTo(name: "CarFuel")
+    @rules(apply: ["exists:wp_latepoint_cars_fuels,id", "nullable"])
+}

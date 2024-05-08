@@ -1,0 +1,16 @@
+type CarAxle {
+  id: ID!
+  name: String
+}
+type CarFuel {
+  id: ID!
+  name: String
+}
+type CarGear {
+  id: ID!
+  name: String
+}
+type CarBody {
+  id: ID!
+  name: String
+}

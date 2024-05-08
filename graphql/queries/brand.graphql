@@ -1,0 +1,26 @@
+extend type Query {
+  # Query pro kategorie
+  "List of categories."
+  brands: [CarBrand!]! @all @guard
+  brand(id: ID! @eq): CarBrand @find @guard
+}
+
+type CarBrand {
+  "Unique identifier."
+  id: ID!
+
+  "Name of the brand."
+  name: String!
+
+  "Slug of the brand."
+  slug: String
+
+  "Logo of the brand."
+  logo: String
+
+  "Timestamp when the brand was created."
+  created_at: DateTime!
+
+  "Timestamp when the brand was last updated."
+  updated_at: DateTime!
+}

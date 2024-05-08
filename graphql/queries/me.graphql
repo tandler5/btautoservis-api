@@ -1,0 +1,11 @@
+extend type Query {
+  me: User! @guard @auth
+}
+type User{
+id:ID
+email:String
+name:String
+picture:String
+provider:String
+phone:String
+}

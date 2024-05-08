@@ -1,0 +1,56 @@
+extend type Query {
+  # Query of customer notification tokens
+  customerNotificationToken(id: ID! @eq): NotificationToken @find @guard
+}
+
+type NotificationToken {
+  id: ID!
+
+  object: Customer! @belongsTo
+
+  token: String!
+
+  "Timestamp when the token was created."
+  created_at: DateTime!
+
+  "Timestamp when the token was last updated."
+  updated_at: DateTime!
+
+  "Timestamp when the token was deleted."
+  deleted_at: DateTime
+}
+
+type Customer {
+  id: ID!
+
+  email: String!
+
+  first_name: String
+
+  last_name: String
+
+  phone: String
+
+  avatar_image_id: Int
+
+  status: String
+
+  google_user_id: String
+
+  facebook_user_id: String
+
+  wordpress_user_id: String
+
+  notes: String
+
+  admin_notes: String
+
+  "Timestamp when the user was created."
+  created_at: DateTime!
+
+  "Timestamp when the user was last updated."
+  updated_at: DateTime!
+
+  "Timestamp when the user was deleted."
+  deleted_at: DateTime
+}
