@@ -1,0 +1,29 @@
+{
+    "name": "firevel/firebase-authentication",
+    "description": "Firebase authentication driver for Laravel",
+    "type": "library",
+    "require": {
+        "kreait/firebase-tokens": "^4.0",
+        "symfony/cache": "^6.2"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Firevel\\FirebaseAuthentication\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Firevel\\FirebaseAuthentication\\FirebaseAuthenticationServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Michael Slowik",
+            "email": "michael.slowik@firevel.com"
+        }
+    ]
+}
