@@ -1,41 +1,41 @@
 extend type Query {
-  # Query pro alerty
-  "List of alert types."
-  alerts: [AlertType!]! @field(resolver: "Alerts") @guard
-  "List of alert types."
-  alertsTypes: [AlertType!]! @all @guard
+    # Query pro alerty
+    "List of alert types."
+    alerts: [CarAlertType!]! @field(resolver: "Alerts") @guard
+    "List of alert types."
+    alertsTypes: [CarAlertType!]! @all @guard
 }
 
-type AlertType {
-  "Unique identifier."
-  id: ID!
+type CarAlertType {
+    "Unique identifier."
+    id: ID!
 
-  "Name of the alert."
-  name: String!
+    "Name of the alert."
+    name: String!
 
-  "Title of the alert."
-  title: String!
+    "Title of the alert."
+    title: String!
 
-  "Description of the alert."
-  description: String
+    "Description of the alert."
+    description: String
 }
 
 type CarAlert {
-  "Unique identifier."
-  id: ID!
+    "Unique identifier."
+    id: ID!
 
-  "Name of the alert."
-  identifier: String!
+    "Name of the alert."
+    identifier: String!
 
-  "Title of the alert."
-  car: Car! @belongsTo
+    "Title of the alert."
+    car: Car! @belongsTo
 
-  "Description of the alert."
-  type: AlertType! @belongsTo
+    "Description of the alert."
+    type: CarAlertType! @belongsTo
 
-  "Description of the alert."
-  date: String!
+    "Description of the alert."
+    date: String!
 
-  "Description of the alert."
-  active: Boolean!
+    "Description of the alert."
+    active: Boolean!
 }

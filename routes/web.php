@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InvoiceController;
 use App\Livewire\RealTimeMessage;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -7,7 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', RealTimeMessage::class);
 
-Route::get('/a',[UserController::class, 'down']);
+Route::get('/invoice',[InvoiceController::class, 'getInvoice']);
 
 Route::get('/update-brands', function () {
 

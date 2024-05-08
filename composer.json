@@ -12,6 +12,7 @@
         "laravel/reverb": "@beta",
         "laravel/telescope": "^5.0",
         "laravel/tinker": "^2.9",
+        "laraveldaily/laravel-invoices": "^4.0",
         "livewire/livewire": "^3.4",
         "mll-lab/laravel-graphiql": "^3.2",
         "nuwave/lighthouse": "^6.36"
