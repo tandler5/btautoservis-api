@@ -1,5 +1,5 @@
 <?php
- 
+
 namespace App\Http\Controllers;
 
 use App\Models\CustomerNotificationTokens;
@@ -15,42 +15,42 @@ class UserController extends Controller
 
         switch ($status) {
             case 'cancelled':
-                $newObject->title =  "Vaše zakázka byla zrušena";
-                $newObject->message =  "";
+                $newObject->title = "Vaše zakázka byla zrušena";
+                $newObject->message = "";
                 break;
             case 'přijato':
-                $newObject->title =  "Vaše zakázka byla přijata";
-                $newObject->message =  "";
+                $newObject->title = "Vaše zakázka byla přijata";
+                $newObject->message = "";
                 break;
 
             case 'Čeká_se_na_díly':
-                $newObject->title =  "Vaše zakázka čeká na díly";
-                $newObject->message =  "";
+                $newObject->title = "Vaše zakázka čeká na díly";
+                $newObject->message = "";
                 break;
 
             case 'vyřizuje_se':
-                $newObject->title =  "Vaši zakázku právě vyřizujeme";
-                $newObject->message =  "";
+                $newObject->title = "Vaši zakázku právě vyřizujeme";
+                $newObject->message = "";
                 break;
 
             case 'k_vyzvednutí':
-                $newObject->title =  "Vaše zakázka je připravena k vyzvednutí";
-                $newObject->message =  "";
+                $newObject->title = "Vaše zakázka je připravena k vyzvednutí";
+                $newObject->message = "";
                 break;
 
             case 'approved':
-                $newObject->title =  "Vaše zakázka je dokončena";
-                $newObject->message =  "";
+                $newObject->title = "Vaše zakázka je dokončena";
+                $newObject->message = "";
                 break;
 
             case 'reklamace':
-                $newObject->title =  "Přijali jsme Vaši zakázku k reklamaci";
-                $newObject->message =  "";
+                $newObject->title = "Přijali jsme Vaši zakázku k reklamaci";
+                $newObject->message = "";
                 break;
 
             case 'vyřízená_reklamace':
-                $newObject->title =  "Vyše reklamace byla vyřízena";
-                $newObject->message =  "";
+                $newObject->title = "Vyše reklamace byla vyřízena";
+                $newObject->message = "";
                 break;
             default:
                 $responseMessage = "Špatný stav zakázky: $status";
@@ -59,22 +59,22 @@ class UserController extends Controller
         }
         return $newObject;
     }
-    
+
     // Routy jsou nasměrovány na tuto funkci a podobné
     public function notify(Request $request)
     {
         $postData = $request->all();
         $customerId = $request->input('customer.id');
-        $customerId = 168;
-        if(!isset($customerId)){
+
+        if (!isset($customerId)) {
             throw new \Exception("No customer found", 404);
         }
 
         // Získání tokenů z databáze
-        $userTokens = CustomerNotificationTokens::where('object',$customerId)->get();
+        $userTokens = CustomerNotificationTokens::where('object', $customerId)->get();
 
         // Kontrola, zda $userTokens obsahuje data
-        if($userTokens->isEmpty()) {
+        if ($userTokens->isEmpty()) {
             throw new \Exception("No tokens found for the customer", 404);
         }
 
@@ -82,9 +82,8 @@ class UserController extends Controller
         $status = $postData['status'];
 
         if ($status) {
-            $mappedUserTokens =  $userTokens->map(function ($object) use ($status) {
+            $mappedUserTokens = $userTokens->map(function ($object) use ($status) {
                 $newObject = new \stdClass();
-                // Naplňte nový objekt daty z původního objektu
                 $informations = $this->getStatusMessage($status);
                 $newObject->title = $informations->title;
                 $newObject->message = "s";
@@ -92,7 +91,7 @@ class UserController extends Controller
                 return $newObject;
             });
             $body = urldecode($mappedUserTokens);
-            
+
             $url = "https://exp.host/--/api/v2/push/send";
 
             $curl = curl_init($url);
@@ -102,7 +101,7 @@ class UserController extends Controller
             curl_setopt($curl, CURLOPT_HEADER, 1);
 
             $headers = array(
-            "Content-Type: application/json",
+                "Content-Type: application/json",
             );
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -123,22 +122,20 @@ class UserController extends Controller
             curl_close($curl);
 
             $parts = explode("\r\n\r\nHTTP/", $responseContent);
-            $parts = (count($parts) > 1 ? 'HTTP/' : '').array_pop($parts);
+            $parts = (count($parts) > 1 ? 'HTTP/' : '') . array_pop($parts);
             list($headersString, $body) = explode("\r\n\r\n", $parts, 2);
-            
+
             $headersArray = explode("\n", $headersString);
-            
-            
+
+
             $headers = [];
-            
+
             foreach ($headersArray as $header) {
-                // Ignoruj prázdné řádky
                 if (!empty($header)) {
-                    // Rozdělení řádku na název a hodnotu
                     $parts = explode(': ', $header, 2);
                     $name = trim($parts[0]);
                     $value = trim($parts[1] ?? '');
-                    
+
                     // Přidání hlavičky do pole
                     $headers[$name] = $value;
                 }
@@ -146,17 +143,17 @@ class UserController extends Controller
 
             $dataArray = json_decode($body)->data;
 
-            foreach ($dataArray as $key=>$value) {
+            foreach ($dataArray as $key => $value) {
                 $notification = $dataArray[$key];
                 $message = isset($notification->message) ? $notification->message : null;
-                NotificationLog::create(['customer_token' => $userTokens[$key]->id, 'status' => $notification->status, 'message' => $message ]);
+                NotificationLog::create(['customer_token' => $userTokens[$key]->id, 'status' => $notification->status, 'message' => $message]);
             }
             $response = new Response($body);
             $response->withHeaders($headers);
-            
+
 
             return $response;
-        
+
         }
     }
 }

@@ -1,0 +1,4 @@
+type Post {
+    ID: ID!
+    url: String @rename(attribute: "guid")
+}

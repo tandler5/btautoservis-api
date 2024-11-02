@@ -1,65 +1,69 @@
 extend type Query {
-  "List of services."
-  services: [Service!]! @all @guard
-  service(id: ID! @eq): Service @find @guard
+    "List of services."
+    services: [Service!]! @all
+    service(id: ID! @eq): Service @find @guard
 }
 
 "Category information."
 type Service {
-  "Unique identifier."
-  id: ID!
-  "Name of the service."
-  name: String!
-  "Description of the service."
-  short_description: String
+    "Unique identifier."
+    id: ID!
+    "Name of the service."
+    name: String!
+    "Description of the service."
+    short_description: String
 
-  is_price_variable: String
+    is_price_variable: String
 
-  price_min: String!
+    price_min: String!
 
-  price_max: String!
+    price_max: String!
 
-  charge_amount: String!
+    charge_amount: String!
 
-  deposit_amount: String!
+    deposit_amount: String!
 
-  is_deposit_required: Boolean
+    is_deposit_required: Boolean
 
-  deposit_value: String
+    deposit_value: String
 
-  duration: Int
+    duration: Int
 
-  buffer_before: String
+    buffer_before: Int
 
-  buffer_after: String
+    buffer_after: Int
 
-  category_id: Category @belongsTo
+    agents: [Agent!] @hasMany
 
-  order_number: String
+    category_id: Category @belongsTo
 
-  selection_image_id: String
+    order_number: String
 
-  description_image_id: String
+    selection_image_id: String
 
-  bg_color: String
+    description_image_id: String
 
-  timeblock_interval: String
+    bg_color: String
 
-  capacity_min: String
+    timeblock_interval: String
 
-  capacity_max: String
+    capacity_min: String
 
-  status: String
+    capacity_max: String
 
-  visibility: String
+    status: String
 
-  created_at: DateTime
+    visibility: String
 
-  updated_at: DateTime
+    created_at: DateTime
 
-  duration_name: String
+    updated_at: DateTime
 
-  override_default_booking_status: String
+    duration_name: String
 
-  post_id: String
+    override_default_booking_status: String
+
+    post_id: String
+
+    extras: [ServiceExtra!] @hasMany
 }

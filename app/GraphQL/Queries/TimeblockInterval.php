@@ -2,10 +2,12 @@
 
 namespace App\GraphQL\Queries;
 
+use App\Models\Setting;
+
 final class TimeblockInterval
 {
-    public function __invoke(): string
+    public function __invoke(): int
     {
-        return 'world!';
+        return Setting::where('name', 'timeblock_interval')->value('value');
     }
 }

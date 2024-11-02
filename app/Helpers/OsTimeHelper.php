@@ -1,8 +1,8 @@
 <?php
 
-use App\Helpers\DateTimeHelper;
+namespace App\Helpers;
 
-class TimeHelper
+class OsTimeHelper
 {
 
     private static $timezone = false;
@@ -21,7 +21,7 @@ class TimeHelper
 
     public static function reformat_date_string($date_string, $from_format, $to_format)
     {
-        $start_date_obj = DateTimeHelper::os_createFromFormat($from_format, $date_string);
+        $start_date_obj = OsWpDateTime::os_createFromFormat($from_format, $date_string);
         return $start_date_obj->format($to_format);
     }
 
@@ -130,6 +130,11 @@ class TimeHelper
         return OsWpDateTime::datetime_in_utc(new OsWpDateTime('now'), 'Y-m-d H:i:s');
     }
 
+    public static function custom_datetime_utc_in_db_format(string $time = 'now')
+    {
+        return OsWpDateTime::datetime_in_utc(new OsWpDateTime($time), 'Y-m-d H:i:s');
+    }
+
     public static function now_datetime_in_db_format()
     {
         return self::now_datetime_in_format('Y-m-d H:i:s');
@@ -207,16 +212,8 @@ class TimeHelper
     public static function get_wp_timezone()
     {
         if (self::$timezone) return self::$timezone;
-        $timezone_string = get_option('timezone_string');
-        if (!empty($timezone_string)) {
-            return new DateTimeZone($timezone_string);
-        }
-        $offset = get_option('gmt_offset');
-        $hours = (int)$offset;
-        $minutes = abs(($offset - (int)$offset) * 60);
-        $offset = sprintf('%+03d:%02d', $hours, $minutes);
-        self::$timezone = new DateTimeZone($offset);
-        return self::$timezone;
+        $timezone_string = "Europe/Prague";
+        return new \DateTimeZone($timezone_string);
     }
 
     public static function get_wp_timezone_name()

@@ -14,5 +14,9 @@ class Category extends Model
     {
         return $this->hasMany(Service::class);
     }
+    public function image()
+    {
+        return $this->belongsTo(Post::class, 'selection_image_id');
+    }
     
 }

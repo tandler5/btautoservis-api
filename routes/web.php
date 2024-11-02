@@ -1,14 +1,14 @@
 <?php
 
 use App\Http\Controllers\InvoiceController;
-use App\Livewire\RealTimeMessage;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Livewire\RealTimeMessage;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', RealTimeMessage::class);
 
-Route::get('/invoice',[InvoiceController::class, 'getInvoice']);
+Route::get('/invoice', [InvoiceController::class, 'getInvoice']);
 
 Route::get('/update-brands', function () {
 
@@ -22,9 +22,10 @@ Route::get('/update-brands', function () {
 });
 Route::prefix('api')->group(function () {
     Route::prefix('users')->group(function () {
-        Route::post('/notify',[UserController::class,'notify']);
+        Route::post('/notify', [UserController::class, 'notify']);
     });
 });
+
 Route::get('/update-models', function () {
 
     // Spuštění příkazu pro aktualizaci značek

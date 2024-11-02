@@ -1,0 +1,14 @@
+type ServiceExtra {
+    id: ID
+    name: String
+    short_description: String
+    charge_amount: Int
+    duration: Int
+    maximum_quantity: Int
+    image: Post @belongsTo
+    description_image_id: Int
+    multiplied_by_attendies: String
+    status: String
+    created_at: DateTime
+    updated_at: DateTime
+}

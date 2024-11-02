@@ -1,0 +1,16 @@
+type Query {
+    timeBlockInterval: Int
+    taxes: [Tax!]!
+}
+
+type TaxEntry {
+    value: Tax
+}
+
+type Tax{
+    id: ID
+    name: String
+    name: String
+    type: String
+    value:Int
+}

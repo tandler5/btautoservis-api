@@ -1,0 +1,17 @@
+scalar JSON
+
+extend type Query {
+    availableSlots(
+        service_id: ID!
+            @rules(apply: ["exists:wp_latepoint_services,id", "required"])
+        location_id: ID
+        year: Int!
+        month: Int!
+    ): JSON! @field(resolver: "AvailableSlots")
+}
+type Slot {
+    date: Date
+    start_time: Int
+    end_time: Int
+    agents: [Int]
+}

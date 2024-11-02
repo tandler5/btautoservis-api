@@ -1,0 +1,9 @@
+extend type Query {
+    locations: [Location!]! @all
+}
+type Location {
+    id: ID!
+    name: String
+    full_address: String
+    image: Post @belongsTo
+}

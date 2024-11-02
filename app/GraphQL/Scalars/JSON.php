@@ -1,3 +1,5 @@
+<?php
+
 namespace App\GraphQL\Scalars;
 
 use GraphQL\Type\Definition\ScalarType;
@@ -44,3 +46,6 @@ class JSON extends ScalarType
         return json_decode($valueNode->value, true);
     }
 }
+
+
+?>

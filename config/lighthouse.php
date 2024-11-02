@@ -37,6 +37,8 @@ return [
             // Logs in a user if they are authenticated. In contrast to Laravel's 'auth'
             // middleware, this delegates auth and permission checks to the field level.
             Nuwave\Lighthouse\Http\Middleware\AttemptAuthentication::class,
+            \ErlandMuchasaj\LaravelGzip\Middleware\GzipEncodeResponse::class,
+
 
             // Logs every incoming GraphQL query.
             // Nuwave\Lighthouse\Http\Middleware\LogGraphQLQueries::class,
@@ -62,6 +64,7 @@ return [
     */
 
     'guards' => ['api'],
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -184,7 +187,7 @@ return [
     'security' => [
         'max_query_complexity' => GraphQL\Validator\Rules\QueryComplexity::DISABLED,
         'max_query_depth' => GraphQL\Validator\Rules\QueryDepth::DISABLED,
-        'disable_introspection' => (bool) env('LIGHTHOUSE_SECURITY_DISABLE_INTROSPECTION', false)
+        'disable_introspection' => (bool)env('LIGHTHOUSE_SECURITY_DISABLE_INTROSPECTION', false)
             ? GraphQL\Validator\Rules\DisableIntrospection::ENABLED
             : GraphQL\Validator\Rules\DisableIntrospection::DISABLED,
     ],

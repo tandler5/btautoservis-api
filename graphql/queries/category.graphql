@@ -1,33 +1,39 @@
 extend type Query {
-  # Query pro kategorie
-  "List of categories."
-  category(id: ID! @eq): Category @find @guard
-  categories: [Category!]! @all @guard
+    # Query pro kategorie
+    "List of categories."
+    category(id: ID! @eq): Category @find @guard
+    categories: [Category!]! @all
 }
 extend type Mutation {
-  createCategory(name: String!): Category! @create @guard
-  updateCategory(id: ID!, name: String!): Category! @update @guard
-  deleteCategory(id: ID!): Category @delete @guard
+    createCategory(name: String!): Category! @create @guard
+    updateCategory(id: ID!, name: String!): Category! @update @guard
+    deleteCategory(id: ID!): Category @delete @guard
 }
 "Category information."
 type Category {
-  "Unique identifier."
-  id: ID!
+    "Unique identifier."
+    id: ID!
 
-  "Name of the category."
-  name: String!
+    "Name of the category."
+    name: String!
 
-  "Description of the category."
-  description: String
+    "Description of the category."
+    description: String
 
-  "Timestamp when the category was created."
-  created_at: DateTime!
+    "Order of the category."
+    order_number: String!
 
-  "Timestamp when the category was last updated."
-  updated_at: DateTime!
+    "Image of the category."
+    image: Post @belongsTo
 
-  services(
-    status: String = "active" @where(operator: "like")
-    visibility: String = "visible" @where(operator: "like")
-  ): [Service!]! @hasMany
+    "Timestamp when the category was created."
+    created_at: DateTime!
+
+    "Timestamp when the category was last updated."
+    updated_at: DateTime!
+
+    services(
+        status: String = "active" @where(operator: "like")
+        visibility: String = "visible" @where(operator: "like")
+    ): [Service!]! @hasMany
 }

@@ -1,0 +1,21 @@
+extend type Query {
+    openingHours: [WorkPeriod!]!
+        @all
+        @where(key: "agent_id", operator: "=", value: 0)
+        @where(key: "custom_date", operator: "=", value: null)
+        @where(key: "service_id", operator: "=", value: 0)
+}
+
+type WorkPeriod {
+    id: ID
+    agent: Agent @belongsTo
+    service: Service @belongsTo
+    location: Location! @belongsTo
+    week_day: Int
+    start_time: Int
+    end_time: Int
+    custom: String
+    custom_date: Date
+    created_at: DateTime
+    updated_at: DateTime
+}

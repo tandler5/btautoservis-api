@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Helpers;
+
+use DateTime;
+use DateTimeZone;
+
 class OsWpDateTime extends DateTime
 {
     function __construct($time = 'now', $timezone = false)
@@ -15,6 +20,28 @@ class OsWpDateTime extends DateTime
         return $format ? $utc_datetime->format($format) : $utc_datetime;
     }
 
+    public static function date_to_db_format($date_string, $default = '')
+    {
+        if (empty($date_string)) return $default;
+        try {
+            $date = self::os_createFromFormat(OsSettingsHelper::get_date_format(), $date_string);
+            return $date->format('Y-m-d');
+        } catch (\Exception $e) {
+            return $default;
+        }
+    }
+
+    public static function date_from_db_format($date_string, $default = '')
+    {
+        if (empty($date_string)) return $default;
+        try {
+            $date = self::os_createFromFormat('Y-m-d', $date_string);
+            return $date->format(OsSettingsHelper::get_date_format());
+        } catch (\Exception $e) {
+            return $default;
+        }
+    }
+
     public static function os_createFromFormat($format, $datetime_string, $timezone = false)
     {
         $timezone = ($timezone) ? $timezone : OsTimeHelper::get_wp_timezone();
@@ -27,7 +54,7 @@ class OsWpDateTime extends DateTime
         if (!empty($google_event->start->dateTime)) {
             $date_string = $google_event->start->dateTime;
             $date_format = \DateTime::RFC3339;
-            $timezone = new DateTimeZone($google_event->start->timeZone);
+            $timezone = new \DateTimeZone($google_event->start->timeZone);
         } else {
             // Full day event
             $date_string = $google_event->start->date . ' 00:00:00';

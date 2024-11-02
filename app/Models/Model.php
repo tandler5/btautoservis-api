@@ -1,7 +1,9 @@
 <?php
 
+namespace App\Models;
+
 #[AllowDynamicProperties]
-class OsModel {
+class Model {
 
 	protected $error,
 		$db;
@@ -397,7 +399,7 @@ class OsModel {
 		$this->db->escape_by_ref( $string );
 	}
 
-	public function get_results( $results_type = OBJECT ) {
+	public function get_results( $results_type  ) {
 		$conditions_and_values = $this->build_conditions_query( $this->conditions );
 		if ( $conditions_and_values[0] ) {
 			$where_query = 'WHERE ' . $conditions_and_values[0];

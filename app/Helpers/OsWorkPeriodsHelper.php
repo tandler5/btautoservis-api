@@ -2,6 +2,11 @@
 
 namespace App\Helpers;
 
+use App\Misc\BookingRequest;
+use App\Misc\Filter;
+use App\Misc\WorkPeriod;
+use App\Models\WorkPeriod as OsWorkPeriodModel;
+
 class OsWorkPeriodsHelper
 {
 
@@ -10,14 +15,14 @@ class OsWorkPeriodsHelper
 
 
     /**
-     * @param \LatePoint\Misc\Filter $filter
+     * @param Filter $filter
      * @return array
      *
      * Returns an array of WorkPeriod objects, grouped by a weekday 1 (for Monday) through 7 (for Sunday).
      * example: ['1' => [], '2' => [], ...]
      *
      */
-    public static function get_work_periods_grouped_by_weekday(\LatePoint\Misc\Filter $filter): array
+    public static function get_work_periods_grouped_by_weekday(Filter $filter): array
     {
 
         $work_periods = OsWorkPeriodsHelper::get_work_periods($filter);
@@ -38,10 +43,10 @@ class OsWorkPeriodsHelper
      *
      * Finds work periods that match a filter.
      *
-     * @param \LatePoint\Misc\Filter $filter
-     * @return \LatePoint\Misc\WorkPeriod[]
+     * @param Filter $filter
+     * @return WorkPeriod[]
      */
-    public static function get_work_periods(\LatePoint\Misc\Filter $filter, bool $as_models = false): array
+    public static function get_work_periods(Filter $filter, bool $as_models = false): array
     {
 
         self::set_default_working_hours();
@@ -137,7 +142,7 @@ class OsWorkPeriodsHelper
             if ($work_periods_arr) {
                 foreach ($work_periods_arr as $work_period) {
                     // Convert return row into work period object
-                    $work_periods[] = new \LatePoint\Misc\WorkPeriod($work_period);
+                    $work_periods[] = new WorkPeriod($work_period);
                 }
             }
         }
@@ -146,11 +151,11 @@ class OsWorkPeriodsHelper
 
 
     /**
-     * @param \LatePoint\Misc\BookingRequest $booking_request
+     * @param BookingRequest $booking_request
      * @param array $work_periods_arr
      * @return bool
      */
-    public static function is_timeframe_in_work_periods(\LatePoint\Misc\BookingRequest $booking_request, array $work_periods_arr): bool
+    public static function is_timeframe_in_work_periods(BookingRequest $booking_request, array $work_periods_arr): bool
     {
         if (empty($work_periods_arr)) return false;
         foreach ($work_periods_arr as $work_period) {
@@ -182,12 +187,12 @@ class OsWorkPeriodsHelper
 
     /**
      * @param array $agent_ids
-     * @param \LatePoint\Misc\Filter $filter
+     * @param Filter $filter
      * @return array
      *
      * Returns array in format [start_minutes, end_minutes], for example 08:00-18:00 will be returned as [480, 1080]
      */
-    public static function get_work_start_end_time_for_date_multi_agent(array $agent_ids, \LatePoint\Misc\Filter $filter): array
+    public static function get_work_start_end_time_for_date_multi_agent(array $agent_ids, Filter $filter): array
     {
         $work_start_times = [];
         $work_end_times = [];
@@ -214,7 +219,7 @@ class OsWorkPeriodsHelper
      *
      * Returns array in format [start_minutes, end_minutes], example 8:00-18:00 would be returned as [480, 1080]
      */
-    public static function get_work_start_end_time_for_date(\LatePoint\Misc\Filter $filter): array
+    public static function get_work_start_end_time_for_date(Filter $filter): array
     {
         $work_periods_arr = OsWorkPeriodsHelper::get_work_periods($filter);
         return OsWorkPeriodsHelper::get_work_start_end_time($work_periods_arr);
