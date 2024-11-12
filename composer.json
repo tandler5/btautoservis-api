@@ -6,16 +6,20 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "daniel-de-wit/lighthouse-sanctum": "^3.1",
         "erlandmuchasaj/laravel-gzip": "^1.1",
         "firevel/firebase-authentication": "^2.0",
         "jantinnerezo/livewire-alert": "^3.0",
         "laravel/framework": "^11.0",
         "laravel/reverb": "@beta",
+        "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.16",
         "laravel/telescope": "^5.0",
         "laravel/tinker": "^2.9",
         "laraveldaily/laravel-invoices": "^4.0",
         "livewire/livewire": "^3.4",
         "mll-lab/laravel-graphiql": "^3.2",
+        "nickbeen/socialiteproviders-google-one-tap": "^1.0",
         "nuwave/lighthouse": "^6.36"
     },
     "require-dev": {

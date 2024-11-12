@@ -1,0 +1,18 @@
+extend type Mutation {
+    applyCoupon(input: ApplyCouponInput! @spread): ApplyCoupon
+}
+
+input ApplyCouponInput {
+    code:String
+    services: [ID!]! @rules(apply: ["exists:wp_latepoint_services,id"])
+}
+
+type ApplyCoupon {
+    id:ID!
+    code:String!
+    name:String!
+    discount_type: String!
+    discount_value:Int!
+    description:String!
+    image:String!
+}

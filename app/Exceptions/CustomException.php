@@ -8,14 +8,14 @@ use GraphQL\Error\ProvidesExtensions;
 
 final class CustomException extends Exception implements ClientAware, ProvidesExtensions
 {
-    /** @var @string */
-    protected $reason;
+    protected string $reason;
+    protected array $additionalData;
 
-    public function __construct(string $message, string $reason)
+    public function __construct(string $message, array $additionalData = [])
     {
         parent::__construct($message);
 
-        $this->reason = $reason;
+        $this->additionalData = $additionalData;
     }
 
     /**
@@ -33,10 +33,6 @@ final class CustomException extends Exception implements ClientAware, ProvidesEx
      */
     public function getExtensions(): array
     {
-        return [
-            'some' => 'additional information',
-            'reason' => $this->reason,
-        ];
+        return $this->additionalData;
     }
 }
-?>

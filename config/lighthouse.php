@@ -11,6 +11,16 @@ return [
     | registration and take full control.
     |
     */
+      /*
+    |--------------------------------------------------------------------------
+    | Authentication Guard
+    |--------------------------------------------------------------------------
+    |
+    | The guard to use for authenticating GraphQL requests, if needed.
+    | This setting is used whenever Lighthouse looks for an authenticated user, for example in directives
+    | such as `@guard` and when applying the `AttemptAuthentication` middleware.
+    |
+    */
 
     'route' => [
         /*

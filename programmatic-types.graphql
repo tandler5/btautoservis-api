@@ -12,6 +12,8 @@ type Query {
   "List of alert types."
   alertsTypes: [CarAlertType!]!
 
+  availableSlots(service_id: ID!, location_id: ID, year: Int!, month: Int!, page: Int): JSON!
+
   "List of categories."
   brands: [CarBrand!]!
 
@@ -28,6 +30,7 @@ type Query {
   categories: [Category!]!
   coupons: [Coupon!]!
   customerNotificationToken(id: ID!): NotificationToken
+  openingHours: [WorkPeriod!]!
   locations: [Location!]!
   me: User!
   models(brandId: ID): [CarModel!]!
@@ -37,6 +40,10 @@ type Query {
   services: [Service!]!
 
   service(id: ID!): Service
+  timeBlockInterval: Int
+  socialLogin: JSON
+  taxes: [Tax!]!
+  customFields: JSON
 
   "List of services."
   stepSettings: [StepSetting!]!
@@ -68,13 +75,14 @@ values. Int can represent values between -(2^31) and 2^31 - 1.
 scalar Int
 
 type Mutation {
-  login(provider: String!, token: String!): String!
   createCategory(name: String!): Category!
   updateCategory(id: ID!, name: String!): Category!
   deleteCategory(id: ID!): Category
+  login(provider: String!, token: String!): Login!
   createCar(input: CarCreateInput!): Car!
   updateCar(carId: ID!, data: CarUpdateInput!): Car!
   deleteCar(carId: ID!): Car!
+  applyCoupon(input: ApplyCouponInput!): ApplyCoupon
   setNotificationToken(token: String!): NotificationToken!
 }
 
