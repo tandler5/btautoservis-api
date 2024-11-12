@@ -95,7 +95,6 @@ final class AvailableSlots
         });
 
         $slotsGenerator = new AvailableSlotsGenerator($timeBlockInterval, $service->duration, $weekDaysPeriod, $specificAgentPeriods, $serviceAgents, $agentsBookings);
-        return [];
 
         $slots = $slotsGenerator->generateCalendar($year, $month);
 
