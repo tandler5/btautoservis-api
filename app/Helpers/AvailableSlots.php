@@ -17,7 +17,6 @@ class AvailableSlots
     public function __construct(int $timeBlockInterval, int $serviceDuration, \stdClass $weekDaysPeriods = new \stdClass(), $employeCustomDates, $employes, $employesBookings)
     {
         $this->timeBlockInterval = $timeBlockInterval;
-        $json = json_encode($weekDaysPeriods, JSON_PRETTY_PRINT);
         $this->weekDaysPeriods = $weekDaysPeriods;
         $this->serviceDuration = $serviceDuration;
         $this->employeCustomDates = $employeCustomDates;
@@ -27,42 +26,32 @@ class AvailableSlots
 
     public function generateCalendar($year, $month)
     {
-        // Vytvoření počátečního data
-        $startDate = new \DateTime("$year-$month-01");
-        // Posun na pondělí před prvním dnem měsíce
-        $startDate->modify('last monday');
+          // Vytvoření počátečního data na první den měsíce
+        $firstDayOfMonth = new \DateTime("$year-$month-01");
+        // Posun na poslední pondělí před nebo v prvním dni měsíce
+        $startDate = $firstDayOfMonth->modify('last monday');
 
-        // Nastavení koncového data na poslední den měsíce plus 1 rok minus 1 den
-        $endDate = (clone $startDate)->modify('+1 year - 1 day');
+        // Pokud je první den měsíce pondělí, vrátí to tento den, jinak se vrátí poslední pondělí před prvním dnem měsíce
+        if ($firstDayOfMonth->format('D') === 'Mon') {
+            $startDate = $firstDayOfMonth;
+        }
 
-        // Pole pro týdny
-        $weeks = new \stdClass();
-        $week = [];
-        $currentWeekNumber = (int)$startDate->format('W'); // ISO číslo týdne
+        // Nastavení koncového data na poslední den příštího měsíce o rok později
+        $endDate = (clone $firstDayOfMonth)->modify('+1 year')->modify('last day of this month');
+
+        // Pole pro dny
+        $days = [];
 
         // Procházení každého dne od počátečního do koncového data
         while ($startDate <= $endDate) {
-            // Přidání dnů do týdne
-            for ($day = 0; $day < 7; $day++) {
-                // Vytvoření data pro aktuální den
-                $currentDate = (clone $startDate)->modify("+$day days"); // Posun na aktuální den
-
-                // Přidání dne do týdne
-                $week[$currentDate->format('Y-m-d')] = $this->getDateSlots($currentDate->format('Y-m-d'));
-            }
-
-            // Přidání týdne do pole týdnů
-            if (!isset($weeks->{$currentWeekNumber})) {
-                $weeks->{$currentWeekNumber} = $week;
-            }
-            $week = []; // Resetování týdne
-
-            // Posun na další týden
-            $startDate->modify('+1 week');
-            $currentWeekNumber = (int)$startDate->format('W'); // Aktualizace čísla týdne
+            // Přidání dne do pole
+            $days[$startDate->format('Y-m-d')] = $this->getDateSlots($startDate->format('Y-m-d'));
+            
+            // Posun na další den
+            $startDate->modify('+1 day');
         }
 
-        return $weeks;
+        return $days;
     }
 
     private function isTimeAvaible($date, $minutes): array
@@ -74,15 +63,14 @@ class AvailableSlots
 
 
         // Zaměstnanec má volno
-        $filteredCustomDates = array_filter($this->employeCustomDates, function ($item) use ($date) {
+        foreach ($this->employeCustomDates as $item) {
             $datetime = new \DateTime($date);
-            return (($item['custom_date'] == null) && $datetime->format('N') == $item['week_day']) || $item['custom_date'] == $date;
-        });
-        foreach ($filteredCustomDates as $item) {
-            $start = $item['start_time'];
-            $end = $item['end_time'] != 0 ? $item['end_time'] : 1440;
-            if ($start == 0 && $end == 1440 || $minutes < $start || $minutes > $start && (($minutes + $this->serviceDuration) > $end)) {
-                $avaibleEmployes[$item['agent_id']] = false;
+            if((($item['custom_date'] == null) && $datetime->format('N') == $item['week_day']) || $item['custom_date'] == $date){
+                $start = $item['start_time'];
+                $end = $item['end_time'] != 0 ? $item['end_time'] : 1440;
+                if ($start == 0 && $end == 1440 || $minutes < $start || $minutes > $start && (($minutes + $this->serviceDuration) > $end)) {
+                    $avaibleEmployes[$item['agent_id']] = false;
+                }
             }
         }
 

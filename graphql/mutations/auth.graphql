@@ -1,0 +1,7 @@
+extend type Mutation {
+    login(provider: String!, token: String!): Login!
+}
+type Login {
+    token: String!
+    user: Customer
+}

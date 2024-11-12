@@ -18,7 +18,8 @@ final class AvailableSlots
         $agentId = $args['agent_id'] ?? null;
         $locationId = $args['location_id'] ?? null;
         $month = $args['month'] ?? null;
-        $year = $args['year'] ?? null;
+        $page = $args['page'] ?? 1;
+        $year = ($args['year'] ?? null) + ($page - 1);
         
         $disabledPeriods = [];
         $weekDaysPeriod = new \stdClass();
@@ -74,26 +75,26 @@ final class AvailableSlots
                 });
         })
             ->orWhereNull('custom_date')
-            ->get();
+            ->get()->toArray();
 
         // Globální provozní doba
-        $specificDates->filter(function ($item) {
-            return $item->custom_date == null && $item->agent_id == null && $item->service_id == null && $item->location_id == null;
-        })->each(function ($item) use ($weekDaysPeriod) {
-            $weekDaysPeriod->{$item->week_day} = $item->toArray();
-        });
+        foreach ($specificDates as $item) {
+            if($item['custom_date'] == null && $item['agent_id'] == null && $item['service_id'] == null && $item['location_id'] == null){
+                $weekDaysPeriod->{$item['week_day']} = $item;
+            }
+        }
 
-        // Služba má specifickou provozní dobu
-        $serviceSpecificDates = $specificDates->filter(function ($item) use ($serviceId) {
-            return $item->service_id == $serviceId;
-        });
+        // TODO: Služba má specifickou provozní dobu
+        // $serviceSpecificDates = $specificDates->filter(function ($item) use ($serviceId) {
+        //     return $item->service_id == $serviceId;
+        // });
 
         // Zaměstnanec / Zaměstnanci má/mají specifickou provozní dobu
-        $specificAgentPeriods = $specificDates->filter(function ($item) use ($agentId, $serviceAgents, $serviceId) {
-            return ($agentId ? $item->agent_id == $agentId : $serviceAgents->contains($item->agent_id)) && $item->service_id == 0 || $item->service_id == $serviceId;
+        $specificAgentPeriods = array_filter($specificDates, function ($item) use ($agentId, $serviceAgents, $serviceId){
+            return ($agentId ? $item['agent_id'] == $agentId : $serviceAgents->contains($item['agent_id'])) && $item['service_id'] == 0 || $item['service_id'] == $serviceId;
         });
 
-        $slotsGenerator = new AvailableSlotsGenerator($timeBlockInterval, $service->duration, $weekDaysPeriod, $specificAgentPeriods->toArray(), $serviceAgents, $agentsBookings);
+        $slotsGenerator = new AvailableSlotsGenerator($timeBlockInterval, $service->duration, $weekDaysPeriod, $specificAgentPeriods, $serviceAgents, $agentsBookings);
 
         $slots = $slotsGenerator->generateCalendar($year, $month);
 

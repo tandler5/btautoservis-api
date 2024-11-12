@@ -7,6 +7,7 @@ extend type Query {
         location_id: ID
         year: Int!
         month: Int!
+        page: Int
     ): JSON! @field(resolver: "AvailableSlots")
 }
 type Slot {
