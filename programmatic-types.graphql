@@ -84,6 +84,7 @@ type Mutation {
   deleteCar(carId: ID!): Car!
   applyCoupon(input: ApplyCouponInput!): ApplyCoupon
   setNotificationToken(token: String!): NotificationToken!
+  makeReservation(reservationData: [ReservationInputData!]!): [Reservation!]!
 }
 
 "Directions for ordering a list of records."
@@ -139,6 +140,94 @@ enum Trashed {
   "Only return non-trashed results."
   WITHOUT
 }
+
+"Dynamic WHERE conditions for queries."
+input WhereConditions {
+  "The column that is used for the condition."
+  column: String
+
+  "The operator that is used for the condition."
+  operator: SQLOperator = EQ
+
+  "The value that is used for the condition."
+  value: Mixed
+
+  "A set of conditions that requires all conditions to match."
+  AND: [WhereConditions!]
+
+  "A set of conditions that requires at least one condition to match."
+  OR: [WhereConditions!]
+
+  "Check whether a relation exists. Extra conditions or a minimum amount can be applied."
+  HAS: WhereConditionsRelation
+}
+
+"Dynamic HAS conditions for WHERE condition queries."
+input WhereConditionsRelation {
+  "The relation that is checked."
+  relation: String!
+
+  "The comparison operator to test against the amount."
+  operator: SQLOperator = GTE
+
+  "The amount to test."
+  amount: Int = 1
+
+  "Additional condition logic."
+  condition: WhereConditions
+}
+
+"The available SQL operators that are used to filter query results."
+enum SQLOperator {
+  "Equal operator (`=`)"
+  EQ
+
+  "Not equal operator (`!=`)"
+  NEQ
+
+  "Greater than operator (`>`)"
+  GT
+
+  "Greater than or equal operator (`>=`)"
+  GTE
+
+  "Less than operator (`<`)"
+  LT
+
+  "Less than or equal operator (`<=`)"
+  LTE
+
+  "Simple pattern matching (`LIKE`)"
+  LIKE
+
+  "Negation of simple pattern matching (`NOT LIKE`)"
+  NOT_LIKE
+
+  "Whether a value is within a set of values (`IN`)"
+  IN
+
+  "Whether a value is not within a set of values (`NOT IN`)"
+  NOT_IN
+
+  "Whether a value is within a range of values (`BETWEEN`)"
+  BETWEEN
+
+  "Whether a value is not within a range of values (`NOT BETWEEN`)"
+  NOT_BETWEEN
+
+  "Whether a value is null (`IS NULL`)"
+  IS_NULL
+
+  "Whether a value is not null (`IS NOT NULL`)"
+  IS_NOT_NULL
+}
+
+"""
+Loose type that allows any value. Be careful when passing in large `Int` or `Float` literals,
+as they may not be parsed correctly on the server side. Use `String` literals if you are
+dealing with really large numbers to be on the safe side.
+"""
+scalar Mixed
 
 "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations."
 type __Schema {

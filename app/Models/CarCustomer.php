@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CarCustomer extends Model
 {
     protected $table = 'wp_latepoint_customers_cars';
+    protected $fillable = ['customer', 'car'];
     use HasFactory;
     use SoftDeletes;
 

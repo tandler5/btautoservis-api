@@ -1,45 +1,45 @@
 extend type Query {
-  # Query pro kategorie
-  "List of categories."
-  cars: [Car!]! @field(resolver: "Cars") @guard
-  car(id: ID! @eq): Car @find @guard
+    # Query pro kategorie
+    "List of categories."
+    cars: [Car!]! @all @whereAuth(relation: "customers") @guard
+    car(id: ID! @eq): Car @find @whereAuth(relation: "customers") @guard
 }
 
 type Car {
-  "Unique identifier."
-  id: ID!
+    "Unique identifier."
+    id: ID!
 
-  model: CarModel! @belongsTo
+    model: CarModel! @belongsTo
 
-  "Date of manufacture"
-  year: Int!
+    "Date of manufacture"
+    year: Int!
 
-  "Color name"
-  color: String
+    "Color name"
+    color: String
 
-  vin: String!
+    vin: String!
 
-  "Number of doors"
-  doors: Int
+    "Number of doors"
+    doors: Int
 
-  "Number of seats"
-  seats: Int
+    "Number of seats"
+    seats: Int
 
-  "KW"
-  performance: Int
+    "KW"
+    performance: Int
 
-  "Převodovka"
-  gear: CarGear @belongsTo
+    "Převodovka"
+    gear: CarGear @belongsTo
 
-  "Státní poznávací značka"
-  spz: String
+    "Státní poznávací značka"
+    spz: String
 
-  "Karosérie"
-  body: CarBody @belongsTo
+    "Karosérie"
+    body: CarBody @belongsTo
 
-  "Palivo"
-  fuel: CarFuel @belongsTo
+    "Palivo"
+    fuel: CarFuel @belongsTo
 
-  "Náprava"
-  axle: CarAxle @belongsTo
+    "Náprava"
+    axle: CarAxle @belongsTo
 }

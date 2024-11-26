@@ -15,4 +15,6 @@ type StepSetting {
     created_at: DateTime!
 
     updated_at: DateTime!
+
+    image: String @field(resolver: "App\\GraphQL\\Queries\\StepImage@getImage")
 }

@@ -1,0 +1,9 @@
+type Order {
+    id: ID!
+    subtotal: Int!
+    total: Int!
+    status: String!
+    payment_status: String!
+    tax_total: Int!
+    customer: Customer!
+}

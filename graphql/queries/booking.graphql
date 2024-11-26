@@ -1,0 +1,16 @@
+type Booking {
+    id: ID!
+    customer: Customer! @belongsTo(name: "Customer")
+    service: Service! @belongsTo(name: "Service")
+    car: Car! @belongsTo(name: "Car")
+    start_date: Date!
+    start_time: Int!
+    end_date: Date!
+    end_time: Int!
+    status: String!
+    buffer_before: Int!
+    buffer_after: Int!
+    duration: Int!
+    price: Int!
+    payment_status: String!
+}

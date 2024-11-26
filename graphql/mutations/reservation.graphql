@@ -1,0 +1,65 @@
+extend type Mutation {
+    makeReservation(
+        reservationData: [ReservationInputData!]!
+        customer: CustomerInput
+    ): Reservation!
+}
+
+input ReservationInputData {
+    service: ID! @rules(apply: ["exists:wp_latepoint_services,id", "required"])
+    extras: [ServiceExtraInput!]
+    date: Date! @rules(apply: ["required"])
+    car: CarInput!
+    time: Int! @rules(apply: ["numeric", "min:0", "max:1439"])
+}
+
+input CustomerInput {
+    firstName: String! @rules(apply: ["required"])
+    lastName: String! @rules(apply: ["required"])
+    email: String!
+        @rules(
+            apply: [
+                "unique:App\\Models\\Customer,email"
+                "email:rfc,dns"
+                "required"
+            ]
+        )
+    phone: String! @rules(apply: ["required", "phone"])
+}
+
+input CarInput {
+    id: ID @rules(apply: ["App\\Rules\\Car\\CarBelongsToUser", "filled"])
+    model: ID
+        @rules(
+            apply: [
+                "exists:wp_latepoint_cars_models,id"
+                "filled"
+                # "with_reference:required_if_carId_is_empty,0,id"
+            ]
+        )
+    year: Int
+        @rules(apply: ["numeric", "min:1885", "max_current_year", "filled"])
+    vin: String
+        @rules(apply: ["size:17", "unique:App\\Models\\Car,vin", "filled"])
+    performance: Int @rules(apply: ["numeric", "filled"])
+}
+
+input ServiceExtraInput {
+    id: ID!
+        @rules(
+            apply: [
+                "exists:wp_latepoint_service_extras,id"
+                "with_reference:valid_extras_for_service,,"
+                "filled"
+            ]
+        )
+        @auth
+    quantity: Int!
+        @rules(
+            apply: [
+                "numeric"
+                "min:0"
+                "with_reference:valid_extras_quantity,0,id"
+            ]
+        )
+}

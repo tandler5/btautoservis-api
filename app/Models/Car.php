@@ -12,8 +12,11 @@ class Car extends Model
     protected $table = 'wp_latepoint_cars';
     use HasFactory;
     use SoftDeletes;
-    protected $fillable = ['model', 'year', 'color','vin', 'spz','fuel','doors','seats','axle','body','performance','gear'];
+    protected $fillable = ['model_id', 'year', 'color','vin', 'spz','fuel','doors','seats','axle','body','performance','gear'];
 
+    protected $carMeta = null; // Přidání vlastnosti pro uchování dat
+
+    
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -27,7 +30,7 @@ class Car extends Model
 
     public function model()
     {
-        return $this->belongsTo(CarModel::class, 'model');
+        return $this->belongsTo(CarModel::class);
     }
     public function gear()
     {
@@ -44,5 +47,20 @@ class Car extends Model
     public function axle()
     { 
         return $this->belongsTo(CarAxle::class, 'axle');
+    }
+    public function customers()
+    {
+        $pivotTable = (new CarCustomer())->getTable();
+        return $this->belongsToMany(Customer::class, CarCustomer::class, 'car', 'customer')->whereNull($pivotTable . '.deleted_at');
+    }
+    public function fillCarMeta()
+    {
+        return [
+            'cf_AAA2mnys' => $this->model->brand->name,
+            'cf_rDpeW2Es' => $this->model->name,
+            'cf_OSOt00pC' => $this->year,
+            'cf_4d4TN7NZ' => $this->vin,
+            'cf_uCzra3LT' => $this->performance,
+        ];
     }
 }

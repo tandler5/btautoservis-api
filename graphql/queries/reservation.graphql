@@ -1,0 +1,4 @@
+type Reservation {
+    order: Order!
+    bookings: [Booking!]!
+}
