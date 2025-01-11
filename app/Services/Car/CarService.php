@@ -5,7 +5,6 @@ namespace App\Services\Car;
 use App\Models\Car;
 use App\Models\Customer;
 use App\Models\CarCustomer;
-use App\Services\Booking\BookingService;
 use App\Services\Vat\VatService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;

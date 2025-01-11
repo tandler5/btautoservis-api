@@ -15,9 +15,9 @@ class Service extends Model
         'capacity_max' => 'integer',
     ];
 
-    public function category_id()
+    public function category()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(Category::class);
     }
 
     public function extras()

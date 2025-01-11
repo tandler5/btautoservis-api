@@ -109,7 +109,6 @@ class OrderService
                 $allBookingsModels[] = $booking;
             }
 
-            dump($order);
 
             return [
                 'bookings' => $allBookingsModels,

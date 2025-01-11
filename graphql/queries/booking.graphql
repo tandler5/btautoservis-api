@@ -1,6 +1,7 @@
 type Booking {
     id: ID!
     customer: Customer! @belongsTo(name: "Customer")
+    service_id: ID!
     service: Service! @belongsTo(name: "Service")
     car: Car! @belongsTo(name: "Car")
     start_date: Date!

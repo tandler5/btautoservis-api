@@ -3,6 +3,7 @@
 namespace App\Services\Booking;
 
 
+use App\Helpers\AvailableSlots as AvailableSlotsGenerator;
 use App\Models\Booking;
 use App\Models\BookingMeta;
 use App\Models\Customer;
@@ -108,6 +109,12 @@ class BookingService
         int $time,
     ): ?int
     {   
-        return 1;
+        $slotsGenerator = new AvailableSlotsGenerator($service);
+
+        $avaibleEmployes = $slotsGenerator->isTimeAvaible($date, $time);
+
+        if (count($avaibleEmployes)) {
+          return $avaibleEmployes[0];
+        }
     }
 }

@@ -2,30 +2,108 @@
 
 namespace App\Helpers;
 
+use App\Models\Booking;
+use App\Models\Service;
+use App\Models\Setting;
+use App\Models\WorkPeriod;
+
 class AvailableSlots
 {
 
     public int $timeBlockInterval;
-    public int $serviceDuration;
-    public $employeCustomDates;
+    public Service $service;
+    public $employeCustomDates = null;
     public \stdClass $weekDaysPeriods;
-    public \stdClass $employesBookings;
+    public \stdClass | null $employesBookings= null;
     public $employes;
     public bool $isFirst = true;
     public bool $second = true;
 
-    public function __construct(int $timeBlockInterval, int $serviceDuration, \stdClass $weekDaysPeriods = new \stdClass(), $employeCustomDates, $employes, $employesBookings)
+    public function __construct(Service $service)
     {
+        $employes = $service->agents->pluck('id') ?? [];
+
+        $timeBlockInterval = (int)Setting::where('name', 'timeblock_interval')->pluck('value')->first();
+
         $this->timeBlockInterval = $timeBlockInterval;
-        $this->weekDaysPeriods = $weekDaysPeriods;
-        $this->serviceDuration = $serviceDuration;
-        $this->employeCustomDates = $employeCustomDates;
+        $this->service = $service;
         $this->employes = $employes;
-        $this->employesBookings = $employesBookings;
     }
 
-    public function generateCalendar($year, $month)
+    public function generateCalendar($year, $month, int $agentId = null)
     {
+        $employesBookings = new \stdClass();
+
+        $this->employes->each(function ($agent) use (&$employesBookings) {
+            $employesBookings->{$agent} = new \stdClass();
+        });
+
+        $this->employesBookings = $employesBookings;
+         // Změna dotazu na pracovní období tak, aby zahrnoval celý rok
+         $specificDates = WorkPeriod::where(function ($query) use ($month, $year) {
+            $query->whereYear('custom_date', $year)
+                ->whereMonth('custom_date', '>=', $month)
+                ->orWhere(function ($query) use ($month, $year) {
+                    $query->whereYear('custom_date', $year + 1)
+                        ->whereMonth('custom_date', '<', $month);
+                });
+        })
+            ->orWhereNull('custom_date')
+            ->get()->toArray();
+
+        $weekDaysPeriods = new \stdClass();
+
+        // Globální provozní doba
+        foreach ($specificDates as $item) {
+            if($item['custom_date'] == null && $item['agent_id'] == null && $item['service_id'] == null && $item['location_id'] == null){
+                $weekDaysPeriods->{$item['week_day']} = $item;
+            }
+        }
+
+        $this->weekDaysPeriods = $weekDaysPeriods;
+
+        // TODO: Služba má specifickou provozní dobu
+        // $serviceSpecificDates = $specificDates->filter(function ($item) use ($serviceId) {
+        //     return $item->service_id == $serviceId;
+        // });
+
+        // Zaměstnanec / Zaměstnanci má/mají specifickou provozní dobu
+        $employeCustomDates = array_filter($specificDates, function ($item) use ($agentId){
+            return ($agentId ? $item['agent_id'] == $agentId : $this->employes->contains($item['agent_id'])) && $item['service_id'] == 0 || $item['service_id'] == $this->service->id;
+        });
+
+        $this->employeCustomDates = $employeCustomDates;
+
+        // Změna dotazu tak, aby zahrnoval celý rok
+        $bookings = Booking::where(function ($query) use ($month, $year) {
+            $query->whereYear('start_date', $year) // Zahrnout celý rok
+            ->where(function ($query) use ($month) {
+                $query->whereMonth('start_date', '>=', $month)
+                    ->orWhereMonth('start_date', '<', $month);
+            });
+        })
+        ->whereIn('agent_id', $this->employes)
+        ->get()->toArray();
+
+        foreach ($bookings as $item) {
+            // Zkontrolujeme, zda existuje agent a datum v agentsBookings
+            if (isset($this->employesBookings->{$item['agent_id']}->{$item['start_date']})) {
+                // Pokud existuje, přidáme nový booking
+                $this->employesBookings->{$item['agent_id']}->{$item['start_date']}[] = [
+                    'start_time' => $item['start_time'],
+                    'end_time' => $item['end_time'],
+                ];
+            } else {
+                // Pokud neexistuje, vytvoříme novou položku
+                $this->employesBookings->{$item['agent_id']}->{$item['start_date']} = [
+                    [
+                        'start_time' => $item['start_time'],
+                        'end_time' => $item['end_time'],
+                    ]
+                ];
+            }
+        }
+
           // Vytvoření počátečního data na první den měsíce
         $firstDayOfMonth = new \DateTime("$year-$month-01");
         // Posun na poslední pondělí před nebo v prvním dni měsíce
@@ -54,12 +132,51 @@ class AvailableSlots
         return $days;
     }
 
-    private function isTimeAvaible($date, $minutes): array
+    public function isTimeAvaible($date, $minutes): array
     {
         $avaibleEmployes = [];
         $this->employes->each(function ($employeID) use (&$avaibleEmployes) {
             $avaibleEmployes[$employeID] = true;
         });
+
+        if(!$this->employeCustomDates){
+            // Změna dotazu na pracovní období tak, aby zahrnoval celý rok
+            $specificDates = WorkPeriod::where(function ($query) use ($date) {
+                $query->whereDate('custom_date', $date);
+            })
+            ->orWhereNull('custom_date')
+            ->get()->toArray();
+            $this->employeCustomDates = array_filter($specificDates, function ($item){
+                return $this->employes->contains($item['agent_id']) && $item['service_id'] == 0 || $item['service_id'] == $this->service->id;
+            });
+        }
+        if(!$this->employesBookings){
+            // Změna dotazu tak, aby zahrnoval celý rok
+            $bookings = Booking::where(function ($query) use ($date) {
+                $query->whereDate('start_date', $date);
+            })
+            ->whereIn('agent_id', $this->employes)
+            ->get()->toArray();
+
+            foreach ($bookings as $item) {
+                // Zkontrolujeme, zda existuje agent a datum v agentsBookings
+                if (isset($this->employesBookings->{$item['agent_id']}->{$item['start_date']})) {
+                    // Pokud existuje, přidáme nový booking
+                    $this->employesBookings->{$item['agent_id']}->{$item['start_date']}[] = [
+                        'start_time' => $item['start_time'],
+                        'end_time' => $item['end_time'],
+                    ];
+                } else {
+                    // Pokud neexistuje, vytvoříme novou položku
+                    $this->employesBookings->{$item['agent_id']}->{$item['start_date']} = [
+                        [
+                            'start_time' => $item['start_time'],
+                            'end_time' => $item['end_time'],
+                        ]
+                    ];
+                }
+            }
+         }
 
 
         // Zaměstnanec má volno
@@ -68,7 +185,7 @@ class AvailableSlots
             if((($item['custom_date'] == null) && $datetime->format('N') == $item['week_day']) || $item['custom_date'] == $date){
                 $start = $item['start_time'];
                 $end = $item['end_time'] != 0 ? $item['end_time'] : 1440;
-                if ($start == 0 && $end == 1440 || $minutes < $start || $minutes > $start && (($minutes + $this->serviceDuration) > $end)) {
+                if ($start == 0 && $end == 1440 || $minutes < $start || $minutes > $start && (($minutes + $this->service->duration) > $end)) {
                     $avaibleEmployes[$item['agent_id']] = false;
                 }
             }
@@ -83,7 +200,7 @@ class AvailableSlots
             foreach ($thisDateEmployeBookings as $booking) {
                 // Výpočet času, kdy nová služba začne a skončí
                 $newServiceStart = $minutes;
-                $newServiceEnd = $minutes + $this->serviceDuration;
+                $newServiceEnd = $minutes + $this->service->duration;
 
                 // Existující rezervace zaměstnance
                 $bookingStart = $booking['start_time'];
@@ -122,7 +239,7 @@ class AvailableSlots
         $slots = new \stdClass();
 
         // Generování slotů
-        for ($currentMinutes = $startTime; $currentMinutes <= $endTime - $this->serviceDuration; $currentMinutes += $this->timeBlockInterval) {
+        for ($currentMinutes = $startTime; $currentMinutes <= $endTime - $this->service->duration; $currentMinutes += $this->timeBlockInterval) {
             // Formátování času z minut
             $hours = floor($currentMinutes / 60);
             $minutes = $currentMinutes % 60;

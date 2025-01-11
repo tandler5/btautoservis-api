@@ -35,7 +35,7 @@ type Service {
 
     agents: [Agent!] @hasMany
 
-    category_id: Category @belongsTo
+    category: Category @belongsTo
 
     order_number: String
 
