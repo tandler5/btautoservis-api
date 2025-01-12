@@ -30,8 +30,7 @@ class AvailableSlots
         $this->employes = $employes;
     }
 
-    public function generateCalendar($year, $month, int $agentId = null)
-    {
+    private function setEmployesBookings(){
         $employesBookings = new \stdClass();
 
         $this->employes->each(function ($agent) use (&$employesBookings) {
@@ -39,8 +38,14 @@ class AvailableSlots
         });
 
         $this->employesBookings = $employesBookings;
-         // Změna dotazu na pracovní období tak, aby zahrnoval celý rok
-         $specificDates = WorkPeriod::where(function ($query) use ($month, $year) {
+    }
+
+    public function generateCalendar($year, $month, int $agentId = null)
+    {
+        $this->setEmployesBookings();
+        
+        // Změna dotazu na pracovní období tak, aby zahrnoval celý rok
+        $specificDates = WorkPeriod::where(function ($query) use ($month, $year) {
             $query->whereYear('custom_date', $year)
                 ->whereMonth('custom_date', '>=', $month)
                 ->orWhere(function ($query) use ($month, $year) {
@@ -157,6 +162,8 @@ class AvailableSlots
             })
             ->whereIn('agent_id', $this->employes)
             ->get()->toArray();
+
+            $this->setEmployesBookings();
 
             foreach ($bookings as $item) {
                 // Zkontrolujeme, zda existuje agent a datum v agentsBookings

@@ -3,6 +3,7 @@
 namespace App\Services\Booking;
 
 
+use App\Exceptions\CustomException;
 use App\Helpers\AvailableSlots as AvailableSlotsGenerator;
 use App\Models\Booking;
 use App\Models\BookingMeta;
@@ -55,10 +56,7 @@ class BookingService
 
         $agentId = $this->isSlotAvaible($service, $date, $time);
         if(!$agentId){
-            throw ValidationException::withMessages([
-                'date' => ['The provided date or time is not available'],
-                'time' => ['The provided date or time is not available']
-            ]);
+            throw new CustomException('Zvolený čas není k dispozici', ['timeNotAvailable' => true]);
         }
 
         $car = $this->carService->findOrCreate($data['car'], $customer);
@@ -116,5 +114,6 @@ class BookingService
         if (count($avaibleEmployes)) {
           return $avaibleEmployes[0];
         }
+        return null;
     }
 }
